@@ -180,10 +180,7 @@ var statefulPodRegex = regexp.MustCompile("(.*)-([0-9]+)$")
 func GetParentNameAndOrdinal(name string) (string, int) {
 	parent := ""
 	ordinal := -1
-
-	if os.Getenv("HOSTNETWORK") == "true" {
-		return parent, ordinal
-	}
+	
 	subMatches := statefulPodRegex.FindStringSubmatch(name)
 	if len(subMatches) < 3 {
 		return parent, ordinal
