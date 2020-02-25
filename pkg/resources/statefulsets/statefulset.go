@@ -239,7 +239,6 @@ func checkSupportGroupExitStateArgs(deployingVersion string) (supportedVer bool)
 // The 'mysqlImage' parameter is the image name of the mysql server to use with
 // no version information.. e.g. 'mysql/mysql-server'
 func mysqlServerContainer(cluster *v1alpha1.Cluster, mysqlServerImage string, rootPassword v1.EnvVar, members int, baseServerID uint32) v1.Container {
-	hostname, _ := os.Hostname()
 	args := []string{
 		"--server_id=$(expr $base + $index)",
 		"--datadir=/var/lib/mysql",
