@@ -162,6 +162,26 @@ func boolTypeEnvVar(field string, value bool) v1.EnvVar {
 	}
 }
 
+func nodesEnvVar(name string, hostnetwork bool) v1.EnvVar {
+	if hostnetwork {
+		return v1.EnvVar{
+			Name: "NODES",
+			ValueFrom: &v1.EnvVarSource{
+				ConfigMapKeyRef: &v1.ConfigMapKeySelector{
+					LocalObjectReference: v1.LocalObjectReference{
+							Name: name,
+					},
+					Key: "nodes",
+				},
+			},
+		}
+	} else {
+		return v1.EnvVar{
+			Name: "NODES",
+			Value: ""
+	}
+}
+
 // Returns the MySQL_ROOT_PASSWORD environment variable
 // If a user specifies a secret in the spec we use that
 // else we create a secret with a random password
@@ -328,23 +348,13 @@ func mysqlAgentContainer(cluster *v1alpha1.Cluster, mysqlAgentImage string, root
 			agentPromePortEnvVar(cluster.Spec.AgentPromePort),
 			mysqlPortEnvVar(cluster.Spec.MysqlPort),
 			boolTypeEnvVar("HOSTNETWORK", cluster.Spec.HostNetwork),
+			nodesEnvVar(cluster.Spec.NodeCMNam, cluster.Spec.HostNetwork),
 			rootPassword,
 			{
 				Name: "MY_POD_IP",
 				ValueFrom: &v1.EnvVarSource{
 					FieldRef: &v1.ObjectFieldSelector{
 						FieldPath: "status.podIP",
-					},
-				},
-			},
-			{
-				Name: "NODES",
-				ValueFrom: &v1.EnvVarSource{
-					ConfigMapKeyRef: &v1.ConfigMapKeySelector{
-						LocalObjectReference: v1.LocalObjectReference{
-							Name: cluster.Spec.NodeCMName,
-						},
-						Key: "nodes",
 					},
 				},
 			},

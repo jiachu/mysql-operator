@@ -32,6 +32,7 @@ import (
 	"github.com/oracle/mysql-operator/pkg/cluster"
 	"github.com/oracle/mysql-operator/pkg/cluster/innodb"
 	"github.com/oracle/mysql-operator/pkg/util/mysqlsh"
+	"github.com/golang/glog"
 )
 
 var errNoClusterFound = errors.New("no cluster found on any of the seed nodes")
@@ -106,6 +107,7 @@ func getClusterStatusFromGroupSeeds(ctx context.Context, kubeclient kubernetes.I
 	} else {
 		groupSeeds = os.Getenv("REPLICATION_GROUP_SEEDS")
 	}
+	glog.V(2).Infof("***groupSeeds: %s", groupSeeds)
 	replicationGroupSeeds, err := getReplicationGroupSeeds(groupSeeds, pod)
 	if err != nil {
 		return nil, err
@@ -116,13 +118,23 @@ func getClusterStatusFromGroupSeeds(ctx context.Context, kubeclient kubernetes.I
 		if err != nil {
 			return nil, err
 		}
-		if i == 0 || podExists(kubeclient, inst) {
+		if inst.HostNetwork == "true" {
+			glog.V(2).Infof("***mysqlsh inst: %s", inst.GetShellURI())
 			msh := mysqlsh.New(utilexec.New(), inst.GetShellURI())
 			if !msh.IsClustered(ctx) {
 				continue
 			}
 			return msh.GetClusterStatus(ctx)
+		} else {
+			if i == 0 || podExists(kubeclient, inst) {
+				msh := mysqlsh.New(utilexec.New(), inst.GetShellURI())
+				if !msh.IsClustered(ctx) {
+					continue
+				}
+				return msh.GetClusterStatus(ctx)
+			}
 		}
+		
 	}
 
 	return nil, errNoClusterFound
