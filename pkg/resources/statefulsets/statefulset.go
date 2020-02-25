@@ -349,7 +349,7 @@ func mysqlAgentContainer(cluster *v1alpha1.Cluster, mysqlAgentImage string, root
 			agentPromePortEnvVar(cluster.Spec.AgentPromePort),
 			mysqlPortEnvVar(cluster.Spec.MysqlPort),
 			boolTypeEnvVar("HOSTNETWORK", cluster.Spec.HostNetwork),
-			nodesEnvVar(cluster.Spec.NodeCMNam, cluster.Spec.HostNetwork),
+			nodesEnvVar(cluster.Spec.NodeCMName, cluster.Spec.HostNetwork),
 			rootPassword,
 			{
 				Name: "MY_POD_IP",
