@@ -239,6 +239,7 @@ func checkSupportGroupExitStateArgs(deployingVersion string) (supportedVer bool)
 // The 'mysqlImage' parameter is the image name of the mysql server to use with
 // no version information.. e.g. 'mysql/mysql-server'
 func mysqlServerContainer(cluster *v1alpha1.Cluster, mysqlServerImage string, rootPassword v1.EnvVar, members int, baseServerID uint32) v1.Container {
+	hostname, _ := os.Hostname()
 	args := []string{
 		"--server_id=$(expr $base + $index)",
 		"--datadir=/var/lib/mysql",
@@ -253,7 +254,8 @@ func mysqlServerContainer(cluster *v1alpha1.Cluster, mysqlServerImage string, ro
 		"--relay-log-info-repository=TABLE",
 		"--transaction-write-set-extraction=XXHASH64",
 		fmt.Sprintf("--relay-log=%s-${index}-relay-bin", cluster.Name),
-		fmt.Sprintf("--report-host=\"%[1]s-${index}.%[1]s\"", cluster.Name),
+		fmt.Sprintf("--report-host=\"%s\"", hostname),
+		//fmt.Sprintf("--report-host=\"%[1]s-${index}.%[1]s\"", cluster.Name),
 		"--log-error-verbosity=3",
 	}
 
