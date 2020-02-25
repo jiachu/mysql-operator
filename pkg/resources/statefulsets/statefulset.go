@@ -344,7 +344,7 @@ func mysqlAgentContainer(cluster *v1alpha1.Cluster, mysqlAgentImage string, root
 						LocalObjectReference: v1.LocalObjectReference{
 							Name: cluster.Spec.NodeCMName,
 						},
-						key: "nodes",
+						Key: "nodes",
 					},
 				},
 			},
