@@ -42,7 +42,8 @@ type Instance struct {
 	Port int
 	// MultiMaster specifies if all, or just a single, instance is configured to be read/write.
 	MultiMaster bool
-
+	//hostnetwork
+	HostNetwork bool
 	// IP is the IP address of the Kubernetes Pod.
 	IP net.IP
 }
@@ -66,6 +67,7 @@ func NewLocalInstance() (*Instance, error) {
 	if pod_name == "" {
 		return nil, errors.Errorf("env MY_POD_NAME is empty!!!")
 	}
+
 	name, ordinal := GetParentNameAndOrdinal(pod_name)
 	multiMaster, _ := strconv.ParseBool(os.Getenv("MYSQL_CLUSTER_MULTI_MASTER"))
 	mysqlPort, _ := strconv.ParseInt(os.Getenv("MYSQL_PORT"), 10, 32)
@@ -76,6 +78,7 @@ func NewLocalInstance() (*Instance, error) {
 		Ordinal:     ordinal,
 		Port:        int(mysqlPort),
 		MultiMaster: multiMaster,
+		HostNetwork: os.Getenv("HOSTNETWORK"),
 		IP:          net.ParseIP(os.Getenv("MY_POD_IP")),
 	}, nil
 }
@@ -98,6 +101,7 @@ func NewInstanceFromGroupSeed(seed string) (*Instance, error) {
 		ParentName:  parentName,
 		Ordinal:     ordinal,
 		Port:        int(mysqlPort),
+		HostNetwork: os.Getenv("HOSTNETWORK")
 		MultiMaster: multiMaster,
 	}, nil
 }
@@ -116,6 +120,10 @@ func (i *Instance) GetPassword() string {
 
 // GetShellURI returns the MySQL shell URI for the local MySQL instance.
 func (i *Instance) GetShellURI() string {
+	if i.HostNetwork == "true" {
+		hostname, _ := os.Hostname()
+		return fmt.Sprintf("%s:%s@%s:%d", i.GetUser(), i.GetPassword(), hostname, i.Port)
+	}
 	return fmt.Sprintf("%s:%s@%s:%d", i.GetUser(), i.GetPassword(), i.Name(), i.Port)
 }
 
