@@ -71,7 +71,7 @@ func NewLocalInstance() (*Instance, error) {
 	}
 
 	hostnetwork := os.Getenv("HOSTNETWORK")
-	name, ordinal := GetParentNameAndOrdinal(pod_name, hostnetwork)
+	name, ordinal := GetParentNameAndOrdinal(pod_name)
 	multiMaster, _ := strconv.ParseBool(os.Getenv("MYSQL_CLUSTER_MULTI_MASTER"))
 	mysqlPort, _ := strconv.ParseInt(os.Getenv("MYSQL_PORT"), 10, 32)
 	hostname, _ := os.Hostname()
@@ -98,7 +98,7 @@ func NewInstanceFromGroupSeed(seed string) (*Instance, error) {
 	// We don't care about the returned port here as the Instance's port its
 	// MySQLDB port not its group replication port.
 	hostnetwork := os.Getenv("HOSTNETWORK")
-	parentName, ordinal := GetParentNameAndOrdinal(podName, hostnetwork)
+	parentName, ordinal := GetParentNameAndOrdinal(podName)
 	multiMaster, _ := strconv.ParseBool(os.Getenv("MYSQL_CLUSTER_MULTI_MASTER"))
 	mysqlPort, _ := strconv.ParseInt(os.Getenv("MYSQL_PORT"), 10, 32)
 	return &Instance{
@@ -177,10 +177,11 @@ var statefulPodRegex = regexp.MustCompile("(.*)-([0-9]+)$")
 // ordinal from the Pods name (or hostname). If the Pod was not created by a
 // StatefulSet, its parent is considered to be empty string, and its ordinal is
 // considered to be -1.
-func GetParentNameAndOrdinal(name string, hostnetwork string) (string, int) {
+func GetParentNameAndOrdinal(name string) (string, int) {
 	parent := ""
 	ordinal := -1
-	if hostnetwork == "true" {
+
+	if os.Getenv("HOSTNETWORK") == "true" {
 		return parent, ordinal
 	}
 	subMatches := statefulPodRegex.FindStringSubmatch(name)
