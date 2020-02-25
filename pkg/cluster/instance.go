@@ -70,7 +70,8 @@ func NewLocalInstance() (*Instance, error) {
 		return nil, errors.Errorf("env MY_POD_NAME is empty!!!")
 	}
 
-	name, ordinal := GetParentNameAndOrdinal(pod_name)
+	hostnetwork := os.Getenv("HOSTNETWORK")
+	name, ordinal := GetParentNameAndOrdinal(pod_name, hostnetwork)
 	multiMaster, _ := strconv.ParseBool(os.Getenv("MYSQL_CLUSTER_MULTI_MASTER"))
 	mysqlPort, _ := strconv.ParseInt(os.Getenv("MYSQL_PORT"), 10, 32)
 	hostname, _ := os.Hostname()
@@ -81,7 +82,7 @@ func NewLocalInstance() (*Instance, error) {
 		Ordinal:     ordinal,
 		Port:        int(mysqlPort),
 		MultiMaster: multiMaster,
-		HostNetwork: os.Getenv("HOSTNETWORK"),
+		HostNetwork: hostnetwork,
 		HostName:    hostname,
 		IP:          net.ParseIP(os.Getenv("MY_POD_IP")),
 	}, nil
