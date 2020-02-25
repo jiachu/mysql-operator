@@ -178,7 +178,7 @@ func nodesEnvVar(name string, hostnetwork bool) v1.EnvVar {
 	} else {
 		return v1.EnvVar{
 			Name: "NODES",
-			Value: ""
+			Value: "",
 		}
 	}
 }
