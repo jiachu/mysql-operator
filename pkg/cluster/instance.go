@@ -101,7 +101,7 @@ func NewInstanceFromGroupSeed(seed string) (*Instance, error) {
 		ParentName:  parentName,
 		Ordinal:     ordinal,
 		Port:        int(mysqlPort),
-		HostNetwork: os.Getenv("HOSTNETWORK")
+		HostNetwork: os.Getenv("HOSTNETWORK"),
 		MultiMaster: multiMaster,
 	}, nil
 }
