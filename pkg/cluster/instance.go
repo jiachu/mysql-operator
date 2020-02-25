@@ -43,7 +43,7 @@ type Instance struct {
 	// MultiMaster specifies if all, or just a single, instance is configured to be read/write.
 	MultiMaster bool
 	//hostnetwork
-	HostNetwork bool
+	HostNetwork string
 	// IP is the IP address of the Kubernetes Pod.
 	IP net.IP
 }
