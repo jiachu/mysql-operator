@@ -20,6 +20,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"fmt"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -99,10 +100,11 @@ func getHostNetworkGroupSeeds(nodes string, pod *cluster.Instance) string {
 // cluster. If we can determine that no cluster is found on any of the seed
 // nodes, then we return the empty string.
 func getClusterStatusFromGroupSeeds(ctx context.Context, kubeclient kubernetes.Interface, pod *cluster.Instance) (*innodb.ClusterStatus, error) {
+	groupSeeds := ""
 	if pod.HostNetwork == "true" {
-		groupSeeds := getHostNetworkGroupSeeds(os.Getenv("NODES"), pod)
+		groupSeeds = getHostNetworkGroupSeeds(os.Getenv("NODES"), pod)
 	} else {
-		groupSeeds := os.Getenv("REPLICATION_GROUP_SEEDS")
+		groupSeeds = os.Getenv("REPLICATION_GROUP_SEEDS")
 	}
 	replicationGroupSeeds, err := getReplicationGroupSeeds(groupSeeds, pod)
 	if err != nil {
