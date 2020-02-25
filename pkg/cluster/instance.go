@@ -101,7 +101,6 @@ func NewInstanceFromGroupSeed(seed string) (*Instance, error) {
 		ParentName:  parentName,
 		Ordinal:     ordinal,
 		Port:        int(mysqlPort),
-		HostNetwork: os.Getenv("HOSTNETWORK"),
 		MultiMaster: multiMaster,
 	}, nil
 }
@@ -129,6 +128,10 @@ func (i *Instance) GetShellURI() string {
 
 // Name returns the name of the instance.
 func (i *Instance) Name() string {
+	if i.HostNetwork == "true" {
+		hostname, _ := os.Hostname()
+		return hostname
+	}
 	return fmt.Sprintf("%s.%s", i.PodName(), i.ParentName)
 }
 
