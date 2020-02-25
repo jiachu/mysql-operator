@@ -338,6 +338,17 @@ func mysqlAgentContainer(cluster *v1alpha1.Cluster, mysqlAgentImage string, root
 				},
 			},
 			{
+				Name: "NODES",
+				ValueFrom: &v1.EnvVarSource{
+					ConfigMapKeyRef: &v1.ConfigMapKeySelector{
+						LocalObjectReference: v1.LocalObjectReference{
+							Name: cluster.Spec.NodeCMName,
+						},
+						key: "nodes"
+					},
+				},
+			},
+			{
 				Name: "MY_POD_NAME",
 				ValueFrom: &v1.EnvVarSource{
 					FieldRef: &v1.ObjectFieldSelector{

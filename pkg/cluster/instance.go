@@ -44,6 +44,8 @@ type Instance struct {
 	MultiMaster bool
 	//hostnetwork
 	HostNetwork string
+	//hostname
+	HostName string
 	// IP is the IP address of the Kubernetes Pod.
 	IP net.IP
 }
@@ -71,6 +73,7 @@ func NewLocalInstance() (*Instance, error) {
 	name, ordinal := GetParentNameAndOrdinal(pod_name)
 	multiMaster, _ := strconv.ParseBool(os.Getenv("MYSQL_CLUSTER_MULTI_MASTER"))
 	mysqlPort, _ := strconv.ParseInt(os.Getenv("MYSQL_PORT"), 10, 32)
+	hostname, _ := os.Hostname()
 	return &Instance{
 		Namespace:   os.Getenv("POD_NAMESPACE"),
 		ClusterName: os.Getenv("MYSQL_CLUSTER_NAME"),
@@ -79,6 +82,7 @@ func NewLocalInstance() (*Instance, error) {
 		Port:        int(mysqlPort),
 		MultiMaster: multiMaster,
 		HostNetwork: os.Getenv("HOSTNETWORK"),
+		HostName:    hostname,
 		IP:          net.ParseIP(os.Getenv("MY_POD_IP")),
 	}, nil
 }
@@ -92,7 +96,8 @@ func NewInstanceFromGroupSeed(seed string) (*Instance, error) {
 	}
 	// We don't care about the returned port here as the Instance's port its
 	// MySQLDB port not its group replication port.
-	parentName, ordinal := GetParentNameAndOrdinal(podName)
+	hostnetwork := os.Getenv("HOSTNETWORK")
+	parentName, ordinal := GetParentNameAndOrdinal(podName, hostnetwork)
 	multiMaster, _ := strconv.ParseBool(os.Getenv("MYSQL_CLUSTER_MULTI_MASTER"))
 	mysqlPort, _ := strconv.ParseInt(os.Getenv("MYSQL_PORT"), 10, 32)
 	return &Instance{
@@ -101,6 +106,8 @@ func NewInstanceFromGroupSeed(seed string) (*Instance, error) {
 		ParentName:  parentName,
 		Ordinal:     ordinal,
 		Port:        int(mysqlPort),
+		HostNetwork: hostnetwork,
+		HostName:    podName,
 		MultiMaster: multiMaster,
 	}, nil
 }
@@ -120,8 +127,7 @@ func (i *Instance) GetPassword() string {
 // GetShellURI returns the MySQL shell URI for the local MySQL instance.
 func (i *Instance) GetShellURI() string {
 	if i.HostNetwork == "true" {
-		hostname, _ := os.Hostname()
-		return fmt.Sprintf("%s:%s@%s:%d", i.GetUser(), i.GetPassword(), hostname, i.Port)
+		return fmt.Sprintf("%s:%s@%s:%d", i.GetUser(), i.GetPassword(), i.HostName, i.Port)
 	}
 	return fmt.Sprintf("%s:%s@%s:%d", i.GetUser(), i.GetPassword(), i.Name(), i.Port)
 }
@@ -129,8 +135,7 @@ func (i *Instance) GetShellURI() string {
 // Name returns the name of the instance.
 func (i *Instance) Name() string {
 	if i.HostNetwork == "true" {
-		hostname, _ := os.Hostname()
-		return hostname
+		return i.HostName
 	}
 	return fmt.Sprintf("%s.%s", i.PodName(), i.ParentName)
 }
@@ -171,9 +176,12 @@ var statefulPodRegex = regexp.MustCompile("(.*)-([0-9]+)$")
 // ordinal from the Pods name (or hostname). If the Pod was not created by a
 // StatefulSet, its parent is considered to be empty string, and its ordinal is
 // considered to be -1.
-func GetParentNameAndOrdinal(name string) (string, int) {
+func GetParentNameAndOrdinal(name string, hostnetwork string) (string, int) {
 	parent := ""
 	ordinal := -1
+	if hostnetowrk == "true" {
+		return parent, ordinal
+	}
 	subMatches := statefulPodRegex.FindStringSubmatch(name)
 	if len(subMatches) < 3 {
 		return parent, ordinal

@@ -85,13 +85,26 @@ func getReplicationGroupSeeds(seeds string, pod *cluster.Instance) ([]string, er
 	return s, nil
 }
 
+func getHostNetworkGroupSeeds(nodes string, pod *cluster.Instance) string {
+	s := []string{}
+	for _, node := range strings.Split(nodes, ",") {
+		s = append(s, fmt.Sprintf("%s:%d", node, pod.Port))
+	}
+	return strings.Join(s, ",")
+}
+
 // getClusterStatusFromGroupSeeds will attempt to get the cluster status (json)
 // string for the MySQL cluster. It will try to log into the mysqlsh on each of
 // the seed nodes in turn (excluding the current node) until it finds a valid
 // cluster. If we can determine that no cluster is found on any of the seed
 // nodes, then we return the empty string.
 func getClusterStatusFromGroupSeeds(ctx context.Context, kubeclient kubernetes.Interface, pod *cluster.Instance) (*innodb.ClusterStatus, error) {
-	replicationGroupSeeds, err := getReplicationGroupSeeds(os.Getenv("REPLICATION_GROUP_SEEDS"), pod)
+	if pod.HostNetwork == "true" {
+		groupSeeds := getHostNetworkGroupSeeds(os.Getenv("NODES"), pod)
+	} else {
+		groupSeeds := os.Getenv("REPLICATION_GROUP_SEEDS")
+	}
+	replicationGroupSeeds, err := getReplicationGroupSeeds(groupSeeds, pod)
 	if err != nil {
 		return nil, err
 	}
