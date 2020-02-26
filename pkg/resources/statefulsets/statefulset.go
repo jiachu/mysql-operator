@@ -257,6 +257,16 @@ func mysqlServerContainer(cluster *v1alpha1.Cluster, mysqlServerImage string, ro
 		"--log-error-verbosity=3",
 	}
 
+	if cluster.Spec.HostNetwork {
+		args = append(args,
+			"--report-host=\"$(cat /etc/hostname)\"",
+		)
+	} else {
+		args = append(args, 
+			fmt.Sprintf("--report-host=\"%[1]s-${index}.%[1]s\"", cluster.Name),
+		)
+	}
+
 	if cluster.RequiresCustomSSLSetup() {
 		args = append(args,
 			"--ssl-ca=/etc/ssl/mysql/ca.crt",
