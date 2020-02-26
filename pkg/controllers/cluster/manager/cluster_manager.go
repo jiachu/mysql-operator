@@ -157,6 +157,7 @@ func (m *ClusterManager) Sync(ctx context.Context) bool {
 
 	online := false
 	instanceStatus := clusterStatus.GetInstanceStatus(m.Instance.Name())
+	glog.V(2).Infof("instanceStatus*** : %+v", instanceStatus)
 	switch instanceStatus {
 	case innodb.InstanceStatusOnline:
 		metrics.IncStatusCounter(instanceStatusCount, innodb.InstanceStatusOnline)
@@ -168,6 +169,7 @@ func (m *ClusterManager) Sync(ctx context.Context) bool {
 		glog.V(4).Info("MySQL instance is recovering")
 
 	case innodb.InstanceStatusMissing:
+		glog.V(4).Info("MySQL instance is Missing...")
 		metrics.IncStatusCounter(instanceStatusCount, innodb.InstanceStatusMissing)
 		primaryAddr, err := clusterStatus.GetPrimaryAddr()
 		if err != nil {
@@ -182,6 +184,7 @@ func (m *ClusterManager) Sync(ctx context.Context) bool {
 		}
 
 	case innodb.InstanceStatusNotFound:
+		glog.V(4).Info("MySQL instance is %s", innodb.InstanceStatusNotFound)
 		metrics.IncStatusCounter(instanceStatusCount, innodb.InstanceStatusNotFound)
 		primaryAddr, err := clusterStatus.GetPrimaryAddr()
 		if err != nil {
@@ -196,6 +199,7 @@ func (m *ClusterManager) Sync(ctx context.Context) bool {
 		}
 
 	case innodb.InstanceStatusUnreachable:
+		glog.V(4).Info("MySQL instance is %s", innodb.InstanceStatusUnreachable)
 		metrics.IncStatusCounter(instanceStatusCount, innodb.InstanceStatusUnreachable)
 
 	default:
