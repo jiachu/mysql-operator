@@ -64,14 +64,14 @@ func resyncPeriod(opts *agentopts.MySQLAgentOpts) func() time.Duration {
 	}
 }
 
-func stopMysqlAgent(w http.ResponseWriter, r *http.Request, stopAgent *bool) {
+func stopMysqlAgent(w http.ResponseWriter, r *http.Request) {
 	*stopAgent = false
-    fmt.Fprintf(w, strconv.FormatBool(stopAgent))
+    fmt.Fprintf(w, strconv.FormatBool(*stopAgent))
 }
 
-func startMysqlAgent(w http.ResponseWriter, r *http.Request, stopAgent *bool) {
+func startMysqlAgent(w http.ResponseWriter, r *http.Request) {
 	*stopAgent = true
-    fmt.Fprintf(w, strconv.FormatBool(stopAgent))
+    fmt.Fprintf(w, strconv.FormatBool(*stopAgent))
 }
 
 var stopAgent *bool  
