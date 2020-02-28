@@ -17,8 +17,9 @@ package manager
 import (
 	"context"
 	"fmt"
-	//"os"
+	"os"
 	"strings"
+	"strconv"
 	"time"
 
 	"github.com/golang/glog"
@@ -37,7 +38,7 @@ import (
 	"github.com/oracle/mysql-operator/pkg/util/mysqlsh"
 )
 
-const pollingIntervalSeconds = 15
+const pollingIntervalSeconds = 60
 
 // ClusterManager manages the local MySQL instance's membership of an InnoDB cluster.
 type ClusterManager struct {
@@ -378,7 +379,10 @@ func (m *ClusterManager) rebootFromOutage(ctx context.Context) (*innodb.ClusterS
 // Run runs the ClusterManager controller.
 // NOTE: ctx is not currently used for cancellation by caller (the stopCh is).
 func (m *ClusterManager) Run(ctx context.Context) {
-	wait.Until(func() { m.Sync(ctx) }, time.Second*pollingIntervalSeconds, ctx.Done())
+	interval_time, _ := strconv.ParseUint(os.Getenv("AGENT_INTERVAL"), 10, 32)
+	glog.Info("***agent run interval: ", interval_time)
+	//wait.Until(func() { m.Sync(ctx) }, time.Second*pollingIntervalSeconds, ctx.Done())
+	wait.Until(func() { m.Sync(ctx) }, time.Second*time.Duration(interval_time), ctx.Done())
 
 	<-ctx.Done()
 

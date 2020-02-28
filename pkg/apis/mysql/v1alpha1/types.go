@@ -52,9 +52,11 @@ type ClusterSpec struct {
 	//agent prometheus port
 	AgentPromePort uint32 `json:"agentPromePort,omitempty"`
 	//mysql_port
-	MysqlPort uint32 `json:"mysqlPort,omitempty"`
+	MysqlPort uint32 `json:"mysqlPort,omitempty" 
 	//paas node configmap
 	NodeCMName string `json:"nodeCMName"`
+	//agent execute interval
+	AgentIntervalTime uint32 `json:"agentIntervalTime,omitempty"`
 	// NodeSelector is a selector which must be true for the pod to fit on a node.
 	// Selector which must match a node's labels for the pod to be scheduled on that node.
 	// More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
