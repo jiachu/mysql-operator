@@ -110,7 +110,8 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 
 	var wg sync.WaitGroup
 
-	*stopAgent = false
+	flag := false
+	stopAgent = &flag
 
 	glog.Info("agent stop flag: ", stopAgent)
 
