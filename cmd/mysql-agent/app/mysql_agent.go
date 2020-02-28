@@ -74,7 +74,7 @@ func startMysqlAgent(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, strconv.FormatBool(*stopAgent))
 }
 
-var stopAgent *bool  
+var stopAgent *bool = false
 
 // Run runs the MySQL backup controller. It should never exit.
 func Run(opts *agentopts.MySQLAgentOpts) error {
