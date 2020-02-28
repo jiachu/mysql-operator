@@ -180,6 +180,8 @@ func nodesEnvVar(name string, hostnetwork bool) v1.EnvVar {
 			Name: "NODES",
 			Value: "",
 		}
+	}
+}
 
 func numberEnvVar(field string, num uint32) v1.EnvVar {
 	return v1.EnvVar{
@@ -363,12 +365,9 @@ func mysqlAgentContainer(cluster *v1alpha1.Cluster, mysqlAgentImage string, root
 			agentHealthCheckPortEnvVar(cluster.Spec.AgentCheckPort),
 			agentPromePortEnvVar(cluster.Spec.AgentPromePort),
 			mysqlPortEnvVar(cluster.Spec.MysqlPort),
-<<<<<<< HEAD
 			boolTypeEnvVar("HOSTNETWORK", cluster.Spec.HostNetwork),
 			nodesEnvVar(cluster.Spec.NodeCMName, cluster.Spec.HostNetwork),
-=======
 			numberEnvVar("AGENT_INTERVAL", cluster.Spec.AgentIntervalTime),
->>>>>>> remotes/origin/mysql-operator-jsonrepair
 			rootPassword,
 			{
 				Name: "MY_POD_IP",
