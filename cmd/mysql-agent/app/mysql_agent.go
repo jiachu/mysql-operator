@@ -113,7 +113,7 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 	flag := false
 	stopAgent = &flag
 
-	glog.Info("agent stop flag: ", stopAgent)
+	glog.Info("agent stop flag: ", *stopAgent)
 
 	manager, err := clustermgr.NewLocalClusterManger(kubeclient, kubeInformerFactory)
 	if err != nil {
@@ -121,8 +121,8 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 	}
 	// agent prometheus port
     agentPromePort := os.Getenv("AGENT_PROME_PORT")
-    promeMetricsEndpoint := fmt.Sprintf("0.0.0.0: %s", agentPromePort)
-    glog.Info("agent prometheus endpoint: ", promeMetricsEndpoint)
+    promeMetricsEndpoint := fmt.Sprintf("0.0.0.0:%s", agentPromePort)
+    glog.Info("agent prometheus endpoint:", promeMetricsEndpoint)
 	metrics.RegisterPodName(opts.Hostname)
 	metrics.RegisterClusterName(manager.Instance.ClusterName)
 	clustermgr.RegisterMetrics()
@@ -131,7 +131,7 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 	http.Handle("/metrics", prometheus.Handler())
 	// func for stop agent
 	http.HandleFunc("/agent/stop", stopMysqlAgent)
-	http.HandleFunc("/agent/start", stopMysqlAgent)
+	http.HandleFunc("/agent/start", startMysqlAgent)
 
 	go http.ListenAndServe(promeMetricsEndpoint, nil)
 
