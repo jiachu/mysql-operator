@@ -74,7 +74,7 @@ func startMysqlAgent(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, strconv.FormatBool(*stopAgent))
 }
 
-var stopAgent *bool = false
+var stopAgent *bool 
 
 // Run runs the MySQL backup controller. It should never exit.
 func Run(opts *agentopts.MySQLAgentOpts) error {
@@ -109,6 +109,8 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 	kubeInformerFactory := kubeinformers.NewFilteredSharedInformerFactory(kubeclient, resyncPeriod(opts)(), opts.Namespace, nil)
 
 	var wg sync.WaitGroup
+
+	*stopAgent = false
 
 	glog.Info("agent stop flag: ", stopAgent)
 
