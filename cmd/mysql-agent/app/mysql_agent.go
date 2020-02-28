@@ -64,6 +64,18 @@ func resyncPeriod(opts *agentopts.MySQLAgentOpts) func() time.Duration {
 	}
 }
 
+func stopMysqlAgent(w http.ResponseWriter, r *http.Request, stopAgent *bool) {
+	stopAgent = false
+    fmt.Fprintf(w, strconv.FormatBool(stopAgent))
+}
+
+func startMysqlAgent(w http.ResponseWriter, r *http.Request, stopAgent *bool) {
+	stopAgent = true
+    fmt.Fprintf(w, strconv.FormatBool(stopAgent))
+}
+
+var stopAgent *bool  
+
 // Run runs the MySQL backup controller. It should never exit.
 func Run(opts *agentopts.MySQLAgentOpts) error {
 	kubeconfig, err := rest.InClusterConfig()
@@ -98,6 +110,8 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 
 	var wg sync.WaitGroup
 
+	glog.Info("agent stop flag: ", stopAgent)
+
 	manager, err := clustermgr.NewLocalClusterManger(kubeclient, kubeInformerFactory)
 	if err != nil {
 		return errors.Wrap(err, "failed to create new local MySQL InnoDB cluster manager")
@@ -112,6 +126,10 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 	backupcontroller.RegisterMetrics()
 	restorecontroller.RegisterMetrics()
 	http.Handle("/metrics", prometheus.Handler())
+	// func for stop agent
+	http.HandleFunc("/agent/stop", stopMysqlAgent)
+	http.HandleFunc("/agent/start", stopMysqlAgent)
+
 	go http.ListenAndServe(promeMetricsEndpoint, nil)
 
 	// Block until local instance successfully initialised.
@@ -121,7 +139,7 @@ func Run(opts *agentopts.MySQLAgentOpts) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		manager.Run(ctx)
+		manager.Run(ctx, stopAgent)
 	}()
 
 	backupController := backupcontroller.NewAgentController(

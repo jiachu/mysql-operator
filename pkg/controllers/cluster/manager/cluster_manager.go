@@ -378,11 +378,18 @@ func (m *ClusterManager) rebootFromOutage(ctx context.Context) (*innodb.ClusterS
 
 // Run runs the ClusterManager controller.
 // NOTE: ctx is not currently used for cancellation by caller (the stopCh is).
-func (m *ClusterManager) Run(ctx context.Context) {
+func (m *ClusterManager) Run(ctx context.Context, stopAgent *bool) {
 	interval_time, _ := strconv.ParseUint(os.Getenv("AGENT_INTERVAL"), 10, 32)
 	glog.Info("***agent run interval: ", interval_time)
 	//wait.Until(func() { m.Sync(ctx) }, time.Second*pollingIntervalSeconds, ctx.Done())
-	wait.Until(func() { m.Sync(ctx) }, time.Second*time.Duration(interval_time), ctx.Done())
+	wait.Until(func() { 
+					glog.Info("***agent stop flag: ", stopAgent)
+					if !stopAgent {
+						m.Sync(ctx) 
+					} else {
+						glog.Info("***agent is stopped...")
+					}
+				}, time.Second*time.Duration(interval_time), ctx.Done())
 
 	<-ctx.Done()
 
