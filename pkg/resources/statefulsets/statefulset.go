@@ -180,6 +180,8 @@ func nodesEnvVar(name string, hostnetwork bool) v1.EnvVar {
 			Name: "NODES",
 			Value: "",
 		}
+	}
+}
 
 func numberEnvVar(field string, num uint32) v1.EnvVar {
 	return v1.EnvVar{
