@@ -384,7 +384,7 @@ func (m *ClusterManager) Run(ctx context.Context, stopAgent *bool) {
 	//wait.Until(func() { m.Sync(ctx) }, time.Second*pollingIntervalSeconds, ctx.Done())
 	wait.Until(func() { 
 					glog.Info("***agent stop flag: ", stopAgent)
-					if stopAgent {
+					if *stopAgent {
 						glog.Info("***agent is stopped...")
 					} else {
 						m.Sync(ctx) 
